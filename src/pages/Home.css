@@ -1,0 +1,246 @@
+.home__hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.home__section-header {
+  margin-bottom: 48px;
+}
+
+/* Featured Grid */
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.home__view-all {
+  margin-top: 8px;
+}
+
+.home__view-btn {
+  padding: 14px 36px;
+  font-size: 1rem;
+}
+
+/* Why Section */
+.home__why {
+  background: var(--color-surface-2);
+}
+
+[data-theme='dark'] .home__why {
+  background: var(--color-bg-alt);
+}
+
+.home__features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.home__feature-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.home__feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.home__feature-icon {
+  font-size: 2.2rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.home__feature-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.home__feature-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+/* Destinations Banner */
+.home__destinations {
+  position: relative;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.home__destinations-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 50%, #0ea5e9 100%);
+  z-index: 0;
+}
+
+.home__destinations-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.home__destinations-text {
+  color: #fff;
+}
+
+.home__destinations-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.home__dest-pill {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.home__dest-pill:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateY(-2px);
+}
+
+/* Testimonials */
+.home__testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.home__testimonial-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.home__testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.home__testimonial-stars {
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+}
+
+.home__testimonial-text {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.home__testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home__testimonial-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.home__testimonial-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.home__testimonial-loc {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Booking Section */
+.home__booking {
+  background: var(--color-surface-2);
+}
+
+[data-theme='dark'] .home__booking {
+  background: var(--color-bg-alt);
+}
+
+.home__booking-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.home__booking-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.home__booking-perks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .home__grid { grid-template-columns: repeat(2, 1fr); }
+  .home__features { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .home__destinations-inner { grid-template-columns: 1fr; gap: 32px; }
+  .home__destinations-pills { justify-content: flex-start; }
+  .home__testimonials-grid { grid-template-columns: 1fr; }
+  .home__booking-inner { grid-template-columns: 1fr; gap: 40px; }
+}
+
+@media (max-width: 600px) {
+  .home__grid { grid-template-columns: 1fr; }
+  .home__features { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 420px) {
+  .home__features { grid-template-columns: 1fr; }
+}
