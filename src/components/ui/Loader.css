@@ -1,0 +1,101 @@
+/* ── UI Loader Component ── */
+
+/* ── Skeleton ── */
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-border) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  display: block;
+  margin-bottom: 10px;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Spinner Wrapper ── */
+.ui-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── Spinner ── */
+.ui-spinner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-spinner--sm { width: 32px; height: 32px; }
+.ui-spinner--md { width: 52px; height: 52px; }
+.ui-spinner--lg { width: 72px; height: 72px; }
+
+.ui-spinner__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--color-primary);
+  animation: spinner-rotate 0.9s linear infinite;
+}
+
+.ui-spinner__ring--2 {
+  inset: 8px;
+  border-top-color: var(--color-accent);
+  animation-duration: 1.4s;
+  animation-direction: reverse;
+}
+
+.ui-spinner--sm .ui-spinner__ring  { border-width: 2px; }
+.ui-spinner--sm .ui-spinner__ring--2 { inset: 5px; border-width: 2px; }
+.ui-spinner--lg .ui-spinner__ring  { border-width: 4px; }
+.ui-spinner--lg .ui-spinner__ring--2 { inset: 12px; border-width: 4px; }
+
+.ui-spinner__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: spinner-pulse 1s ease-in-out infinite alternate;
+}
+
+.ui-spinner--sm .ui-spinner__dot { width: 5px; height: 5px; }
+.ui-spinner--lg .ui-spinner__dot { width: 12px; height: 12px; }
+
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinner-pulse {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to   { opacity: 1;   transform: scale(1.2); }
+}
+
+.ui-spinner__text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}

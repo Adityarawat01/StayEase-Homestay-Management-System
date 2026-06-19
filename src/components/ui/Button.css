@@ -1,0 +1,116 @@
+/* ── UI Button Component ── */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.ui-btn:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Sizes */
+.ui-btn--sm {
+  padding: 8px 18px;
+  font-size: 0.82rem;
+}
+
+.ui-btn--md {
+  padding: 12px 24px;
+  font-size: 0.92rem;
+}
+
+.ui-btn--lg {
+  padding: 16px 36px;
+  font-size: 1.05rem;
+}
+
+/* Variants */
+.ui-btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: #fff;
+  box-shadow: 0 4px 18px var(--color-primary-glow);
+}
+
+.ui-btn--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--color-primary-glow);
+}
+
+.ui-btn--secondary {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.ui-btn--secondary:hover:not(:disabled) {
+  background: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.ui-btn--outline {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.ui-btn--outline:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Disabled */
+.ui-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading */
+.ui-btn--loading {
+  cursor: wait;
+}
+
+.ui-btn__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ui-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.ui-btn--outline .ui-btn__spinner,
+.ui-btn--secondary .ui-btn__spinner {
+  border-color: rgba(0, 0, 0, 0.2);
+  border-top-color: var(--color-primary);
+}
+
+.ui-btn__label--hidden {
+  visibility: hidden;
+  position: absolute;
+}
+
+.ui-btn__loading-text {
+  position: relative;
+}
+
+@keyframes ui-spin {
+  to { transform: rotate(360deg); }
+}
