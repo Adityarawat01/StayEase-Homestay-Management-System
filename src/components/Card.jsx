@@ -86,7 +86,7 @@ function Card({ property, loading = false }) {
             <span className="card__price-amount">₹{price.toLocaleString()}</span>
             <span className="card__price-per"> / night</span>
           </div>
-          <Link to={`/listings`} className="btn btn-primary card__btn">
+          <Link to={`/listings/${id}`} className="btn btn-primary card__btn">
             View Details
           </Link>
         </div>

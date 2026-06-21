@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
 import './Navbar.css'
 
-function Navbar({ darkMode, setDarkMode }) {
+function Navbar() {
+  const { darkMode, toggleTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -22,6 +24,9 @@ function Navbar({ darkMode, setDarkMode }) {
     { to: '/listings', label: 'Listings' },
     { to: '/about', label: 'About' },
     { to: '/dashboard', label: 'Dashboard' },
+    { to: '/ai-assistant', label: '🤖 AI' },
+    { to: '/settings', label: '⚙️ Settings' },
+    { to: '/showcase', label: '🎨 UI' },
   ]
 
   return (
@@ -54,7 +59,7 @@ function Navbar({ darkMode, setDarkMode }) {
           {/* Dark Mode Toggle */}
           <button
             className="navbar__theme-toggle"
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleTheme}
             aria-label="Toggle dark mode"
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >

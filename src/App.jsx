@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -7,6 +8,10 @@ import About from './pages/About'
 import Listings from './pages/Listings'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
+import Settings from './pages/Settings'
+import AIAssistant from './pages/AIAssistant'
+import DetailView from './pages/DetailView'
+import ComponentsShowcase from './pages/ComponentsShowcase'
 import './styles/App.css'
 
 function ScrollToTop() {
@@ -18,27 +23,34 @@ function ScrollToTop() {
 }
 
 function App() {
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('stayease-theme') === 'dark'
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
-    localStorage.setItem('stayease-theme', darkMode ? 'dark' : 'light')
-  }, [darkMode])
-
   return (
     <Router>
       <ScrollToTop />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            borderRadius: '12px',
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+          },
+        }}
+      />
       <div className="app-wrapper">
-        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <Navbar />
         <main className="page-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/listings" element={<Listings />} />
+            <Route path="/listings/:id" element={<DetailView />} />
             <Route path="/about" element={<About />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/ai-assistant" element={<AIAssistant />} />
+            <Route path="/showcase" element={<ComponentsShowcase />} />
           </Routes>
         </main>
         <Footer />
