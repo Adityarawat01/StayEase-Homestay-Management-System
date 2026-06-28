@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { properties } from '../data/properties'
 import BookingForm from '../components/BookingForm'
 import { Button, Modal, toast } from '../components/ui'
+import { getListingById, getListings } from '../services/api'
 import './DetailView.css'
 
 const REVIEWS = [
@@ -24,11 +24,49 @@ function StarRating({ rating, size = 'sm' }) {
 function DetailView() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const property = properties.find((p) => p.id === Number(id))
+
+  const [property, setProperty] = useState(null)
+  const [nearby, setNearby] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const [wishlist, setWishlist] = useState(false)
   const [galleryModal, setGalleryModal] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      setLoading(true)
+      try {
+        const data = await getListingById(id)
+        setProperty(data)
+        
+        if (data) {
+          const allProps = await getListings()
+          const similar = allProps.filter((p) => p.id !== data.id && p.category === data.category).slice(0, 3)
+          setNearby(similar)
+        }
+      } catch (error) {
+        if (error.response?.status === 404) {
+          setProperty(null)
+        } else {
+          toast.error('Failed to fetch property details.')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPropertyData()
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="detail-notfound page-enter">
+        <div className="container detail-notfound__inner">
+          <h2 className="detail-notfound__title">Loading property...</h2>
+        </div>
+      </div>
+    )
+  }
 
   if (!property) {
     return (
@@ -56,8 +94,6 @@ function DetailView() {
       toast.info('Share: ' + window.location.href)
     }
   }
-
-  const nearby = properties.filter((p) => p.id !== property.id && p.category === property.category).slice(0, 3)
 
   return (
     <div className="detail page-enter">

@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { properties } from '../data/properties'
+import { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
+import { getListings } from '../services/api'
 import './Dashboard.css'
 
 const bookingRequests = [
@@ -34,6 +35,19 @@ function StatusBadge({ status }) {
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [requests, setRequests] = useState(bookingRequests)
+  const [properties, setProperties] = useState([])
+
+  useEffect(() => {
+    const fetchProps = async () => {
+      try {
+        const data = await getListings()
+        setProperties(data)
+      } catch (error) {
+        toast.error('Failed to load listings.')
+      }
+    }
+    fetchProps()
+  }, [])
 
   const confirmed = requests.filter((r) => r.status === 'confirmed').length
   const pending = requests.filter((r) => r.status === 'pending').length

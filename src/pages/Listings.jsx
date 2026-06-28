@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import Card from '../components/Card'
-import { properties, locations } from '../data/properties'
+import { locations } from '../data/properties'
+import { getListings, searchListings } from '../services/api'
 import './Listings.css'
 
 const PRICE_MAX = 8000
@@ -14,16 +16,34 @@ function Listings() {
 
   const categories = ['All', 'Mountain', 'Forest', 'Riverside', 'Hilltop', 'Desert', 'Waterfront']
 
+  const [properties, setProperties] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true)
+      try {
+        const data = search ? await searchListings(search) : await getListings()
+        setProperties(data)
+      } catch (error) {
+        toast.error('Failed to fetch listings.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    const timer = setTimeout(() => {
+        fetchAll()
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [search])
+
   const filtered = useMemo(() => {
     let result = properties.filter((p) => {
-      const matchSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.location.toLowerCase().includes(search.toLowerCase())
       const matchLocation =
         location === 'All Locations' || p.location.includes(location)
       const matchPrice = p.price <= priceRange
       const matchCategory = category === 'All' || p.category === category
-      return matchSearch && matchLocation && matchPrice && matchCategory
+      return matchLocation && matchPrice && matchCategory
     })
 
     result = [...result].sort((a, b) => {
@@ -34,7 +54,7 @@ function Listings() {
       return 0
     })
     return result
-  }, [search, location, priceRange, category, sortBy])
+  }, [properties, location, priceRange, category, sortBy])
 
   const handleReset = () => {
     setSearch('')
@@ -165,13 +185,17 @@ function Listings() {
         <div className="listings__results">
           <div className="listings__results-header">
             <p className="listings__count">
-              {filtered.length === 0
+              {loading ? 'Searching...' : (filtered.length === 0
                 ? 'No properties found'
-                : `${filtered.length} propert${filtered.length === 1 ? 'y' : 'ies'} found`}
+                : `${filtered.length} propert${filtered.length === 1 ? 'y' : 'ies'} found`)}
             </p>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="listings__empty">
+              <h3>Loading...</h3>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="listings__empty">
               <div className="listings__empty-icon">🏕️</div>
               <h3>No stays found</h3>

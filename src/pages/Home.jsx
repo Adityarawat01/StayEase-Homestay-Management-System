@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import Hero from '../components/Hero'
 import Card from '../components/Card'
 import BookingForm from '../components/BookingForm'
-import { properties } from '../data/properties'
+import { getListings } from '../services/api'
 import './Home.css'
 
 /* ---- Simple Intersection Observer hook for scroll animations ---- */
@@ -36,14 +37,24 @@ const testimonials = [
 
 function Home() {
   const [loading, setLoading] = useState(true)
+  const [properties, setProperties] = useState([])
   const [featuredRef, featuredVisible] = useScrollReveal()
   const [whyRef, whyVisible] = useScrollReveal()
   const [testimonialRef, testimonialVisible] = useScrollReveal()
   const [bookingRef, bookingVisible] = useScrollReveal()
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1400)
-    return () => clearTimeout(t)
+    const fetchFeatured = async () => {
+      try {
+        const data = await getListings()
+        setProperties(data)
+      } catch (error) {
+        toast.error('Failed to load featured properties.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFeatured()
   }, [])
 
   const featured = properties.slice(0, 6)
