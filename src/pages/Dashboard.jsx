@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { getListings } from '../services/api'
+import { getListings, createListing, updateListing, deleteListing } from '../services/api'
+import Modal from '../components/ui/Modal'
+import Input from '../components/ui/Input'
 import './Dashboard.css'
 
 const bookingRequests = [
@@ -36,18 +38,98 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [requests, setRequests] = useState(bookingRequests)
   const [properties, setProperties] = useState([])
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [newListing, setNewListing] = useState({
+    name: '',
+    location: '',
+    price: '',
+    image: '',
+    amenities: '',
+    description: '',
+    category: 'Mountain'
+  })
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingListing, setEditingListing] = useState(null)
+
+  const loadListings = async () => {
+    try {
+      const data = await getListings()
+      setProperties(data)
+    } catch (error) {
+      toast.error('Failed to load listings.')
+    }
+  }
 
   useEffect(() => {
-    const fetchProps = async () => {
+    loadListings()
+  }, [])
+
+  const handleAddSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const payload = {
+        ...newListing,
+        price: parseInt(newListing.price, 10),
+        amenities: newListing.amenities.split(',').map(a => a.trim()).filter(a => a)
+      }
+      await createListing(payload)
+      toast.success('Listing added successfully!')
+      setIsAddModalOpen(false)
+      setNewListing({ name: '', location: '', price: '', image: '', amenities: '', description: '', category: 'Mountain' })
+      loadListings()
+    } catch (error) {
+      toast.error('Failed to create listing.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleEditClick = (listing) => {
+    setEditingListing({
+      ...listing,
+      amenities: listing.amenities ? listing.amenities.join(', ') : ''
+    })
+    setIsEditModalOpen(true)
+  }
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const payload = {
+        name: editingListing.name,
+        location: editingListing.location,
+        price: parseInt(editingListing.price, 10),
+        image: editingListing.image,
+        amenities: editingListing.amenities.split(',').map(a => a.trim()).filter(a => a),
+        description: editingListing.description,
+        category: editingListing.category
+      }
+      await updateListing(editingListing.id, payload)
+      toast.success('Listing updated successfully!')
+      setIsEditModalOpen(false)
+      setEditingListing(null)
+      loadListings()
+    } catch (error) {
+      toast.error('Failed to update listing.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteClick = async (id) => {
+    if (window.confirm("Are you sure you want to delete this listing?")) {
       try {
-        const data = await getListings()
-        setProperties(data)
+        await deleteListing(id)
+        toast.success("Listing deleted successfully.")
+        setProperties(prev => prev.filter(p => p.id !== id))
       } catch (error) {
-        toast.error('Failed to load listings.')
+        toast.error("Failed to delete listing.")
       }
     }
-    fetchProps()
-  }, [])
+  }
 
   const confirmed = requests.filter((r) => r.status === 'confirmed').length
   const pending = requests.filter((r) => r.status === 'pending').length
@@ -80,7 +162,7 @@ function Dashboard() {
             <h1 className="dashboard__title">Welcome back, Aditya 👋</h1>
             <p className="dashboard__subtitle">Here's what's happening with your properties today.</p>
           </div>
-          <button className="btn dashboard__add-btn">
+          <button className="btn dashboard__add-btn" onClick={() => setIsAddModalOpen(true)}>
             <span>+</span> Add New Listing
           </button>
         </div>
@@ -223,14 +305,79 @@ function Dashboard() {
                 </div>
                 <span className="badge badge--success">Active</span>
                 <div className="dashboard__listing-actions">
-                  <button className="btn btn-ghost dashboard__listing-btn">Edit</button>
+                  <button className="btn btn-ghost dashboard__listing-btn" onClick={() => handleEditClick(p)}>Edit</button>
                   <button className="btn btn-outline dashboard__listing-btn">View</button>
+                  <button className="btn btn-ghost dashboard__listing-btn" style={{ color: '#ef4444' }} onClick={() => handleDeleteClick(p.id)}>Delete</button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Listing" size="md">
+        <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <Input label="Name" placeholder="e.g. Mountain View Retreat" required value={newListing.name} onChange={(e) => setNewListing({ ...newListing, name: e.target.value })} />
+          <Input label="Location" placeholder="e.g. Manali, Himachal Pradesh" required value={newListing.location} onChange={(e) => setNewListing({ ...newListing, location: e.target.value })} />
+          <Input label="Price per Night (₹)" type="number" placeholder="e.g. 5000" required value={newListing.price} onChange={(e) => setNewListing({ ...newListing, price: e.target.value })} />
+          <Input label="Image URL" placeholder="https://..." required value={newListing.image} onChange={(e) => setNewListing({ ...newListing, image: e.target.value })} />
+          <Input label="Amenities (comma separated)" placeholder="WiFi, Pool, Kitchen" required value={newListing.amenities} onChange={(e) => setNewListing({ ...newListing, amenities: e.target.value })} />
+          
+          <div className="ui-input-group">
+            <label className="ui-input-label">Category *</label>
+            <select className="ui-input" required value={newListing.category} onChange={(e) => setNewListing({ ...newListing, category: e.target.value })}>
+              <option value="Mountain">Mountain</option>
+              <option value="Forest">Forest</option>
+              <option value="Riverside">Riverside</option>
+              <option value="Hilltop">Hilltop</option>
+              <option value="Desert">Desert</option>
+              <option value="Waterfront">Waterfront</option>
+            </select>
+          </div>
+
+          <div className="ui-input-group">
+            <label className="ui-input-label">Description *</label>
+            <textarea className="ui-input" rows="3" required value={newListing.description} onChange={(e) => setNewListing({ ...newListing, description: e.target.value })}></textarea>
+          </div>
+          
+          <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={isSubmitting}>
+            {isSubmitting ? 'Adding...' : 'Add Listing'}
+          </button>
+        </form>
+      </Modal>
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Listing" size="md">
+        {editingListing && (
+          <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Input label="Name" required value={editingListing.name} onChange={(e) => setEditingListing({ ...editingListing, name: e.target.value })} />
+            <Input label="Location" required value={editingListing.location} onChange={(e) => setEditingListing({ ...editingListing, location: e.target.value })} />
+            <Input label="Price per Night (₹)" type="number" required value={editingListing.price} onChange={(e) => setEditingListing({ ...editingListing, price: e.target.value })} />
+            <Input label="Image URL" required value={editingListing.image} onChange={(e) => setEditingListing({ ...editingListing, image: e.target.value })} />
+            <Input label="Amenities (comma separated)" required value={editingListing.amenities} onChange={(e) => setEditingListing({ ...editingListing, amenities: e.target.value })} />
+            
+            <div className="ui-input-group">
+              <label className="ui-input-label">Category *</label>
+              <select className="ui-input" required value={editingListing.category} onChange={(e) => setEditingListing({ ...editingListing, category: e.target.value })}>
+                <option value="Mountain">Mountain</option>
+                <option value="Forest">Forest</option>
+                <option value="Riverside">Riverside</option>
+                <option value="Hilltop">Hilltop</option>
+                <option value="Desert">Desert</option>
+                <option value="Waterfront">Waterfront</option>
+              </select>
+            </div>
+
+            <div className="ui-input-group">
+              <label className="ui-input-label">Description *</label>
+              <textarea className="ui-input" rows="3" required value={editingListing.description} onChange={(e) => setEditingListing({ ...editingListing, description: e.target.value })}></textarea>
+            </div>
+            
+            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </button>
+          </form>
+        )}
+      </Modal>
     </div>
   )
 }

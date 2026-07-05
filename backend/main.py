@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import listings
+from database import engine
+import models.database_models as database_models
+
+# Create database tables automatically
+database_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="StayEase API",

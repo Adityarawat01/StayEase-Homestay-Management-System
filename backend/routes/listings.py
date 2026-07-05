@@ -1,8 +1,10 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from typing import List, Optional
 from models.listing import Listing, ListingCreate, ListingUpdate
-from data.listings import get_all_listings, get_listing, create_listing, update_listing, delete_listing, search_listings
+from crud.listings import get_all_listings, get_listing, create_listing, update_listing, delete_listing, search_listings
 from utils.responses import not_found_exception
+from sqlalchemy.orm import Session
+from database import get_db
 
 router = APIRouter(
     prefix="/api/listings",
@@ -10,34 +12,34 @@ router = APIRouter(
 )
 
 @router.get("/search", response_model=List[Listing], status_code=status.HTTP_200_OK)
-def search_listings_route(q: Optional[str] = ""):
-    return search_listings(q)
+def search_listings_route(q: Optional[str] = "", db: Session = Depends(get_db)):
+    return search_listings(db, q)
 
 @router.get("", response_model=List[Listing], status_code=status.HTTP_200_OK)
-def read_listings():
-    return get_all_listings()
+def read_listings(db: Session = Depends(get_db)):
+    return get_all_listings(db)
 
 @router.get("/{listing_id}", response_model=Listing, status_code=status.HTTP_200_OK)
-def read_listing(listing_id: int):
-    listing = get_listing(listing_id)
+def read_listing(listing_id: int, db: Session = Depends(get_db)):
+    listing = get_listing(db, listing_id)
     if not listing:
         raise not_found_exception("Listing")
     return listing
 
 @router.post("", response_model=Listing, status_code=status.HTTP_201_CREATED)
-def add_listing(listing: ListingCreate):
-    return create_listing(listing.model_dump())
+def add_listing(listing: ListingCreate, db: Session = Depends(get_db)):
+    return create_listing(db, listing.model_dump())
 
 @router.put("/{listing_id}", response_model=Listing, status_code=status.HTTP_200_OK)
-def modify_listing(listing_id: int, listing: ListingUpdate):
-    updated = update_listing(listing_id, listing.model_dump(exclude_unset=True))
+def modify_listing(listing_id: int, listing: ListingUpdate, db: Session = Depends(get_db)):
+    updated = update_listing(db, listing_id, listing.model_dump(exclude_unset=True))
     if not updated:
         raise not_found_exception("Listing")
     return updated
 
 @router.delete("/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_listing(listing_id: int):
-    success = delete_listing(listing_id)
+def remove_listing(listing_id: int, db: Session = Depends(get_db)):
+    success = delete_listing(db, listing_id)
     if not success:
         raise not_found_exception("Listing")
     return

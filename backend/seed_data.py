@@ -1,7 +1,12 @@
-# In-memory data store for listings
-listings_db = [
+from database import SessionLocal, engine
+import models.database_models as database_models
+from sqlalchemy.orm import Session
+
+# Create tables
+database_models.Base.metadata.create_all(bind=engine)
+
+listings_data = [
     {
-        "id": 1,
         "name": "Mountain View Homestay",
         "location": "Manali, Himachal Pradesh",
         "price": 3200,
@@ -14,7 +19,6 @@ listings_db = [
         "category": "Mountain"
     },
     {
-        "id": 2,
         "name": "Forest Retreat",
         "location": "Coorg, Karnataka",
         "price": 2800,
@@ -27,7 +31,6 @@ listings_db = [
         "category": "Forest"
     },
     {
-        "id": 3,
         "name": "Riverside Cottage",
         "location": "Rishikesh, Uttarakhand",
         "price": 2400,
@@ -40,7 +43,6 @@ listings_db = [
         "category": "Riverside"
     },
     {
-        "id": 4,
         "name": "Hilltop Eco Lodge",
         "location": "Munnar, Kerala",
         "price": 3600,
@@ -53,7 +55,6 @@ listings_db = [
         "category": "Hilltop"
     },
     {
-        "id": 5,
         "name": "Pine Valley Stay",
         "location": "Kasol, Himachal Pradesh",
         "price": 1900,
@@ -66,7 +67,6 @@ listings_db = [
         "category": "Mountain"
     },
     {
-        "id": 6,
         "name": "Green Escape Resort",
         "location": "Wayanad, Kerala",
         "price": 4200,
@@ -79,7 +79,6 @@ listings_db = [
         "category": "Forest"
     },
     {
-        "id": 7,
         "name": "Desert Oasis Camp",
         "location": "Jaisalmer, Rajasthan",
         "price": 5500,
@@ -92,7 +91,6 @@ listings_db = [
         "category": "Desert"
     },
     {
-        "id": 8,
         "name": "Backwater Houseboat",
         "location": "Alleppey, Kerala",
         "price": 6800,
@@ -106,38 +104,24 @@ listings_db = [
     }
 ]
 
-def get_all_listings():
-    return listings_db
+def seed_db():
+    db: Session = SessionLocal()
+    try:
+        # Check if listings already exist
+        if db.query(database_models.Listing).count() == 0:
+            print("Seeding database with initial listings...")
+            for data in listings_data:
+                listing = database_models.Listing(**data)
+                db.add(listing)
+            db.commit()
+            print("Database seeded successfully!")
+        else:
+            print("Database already contains listings. Skipping seed.")
+    except Exception as e:
+        print(f"Error seeding database: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
-def get_listing(listing_id: int):
-    return next((item for item in listings_db if item["id"] == listing_id), None)
-
-def create_listing(listing_data: dict):
-    new_id = 1 if not listings_db else max(item["id"] for item in listings_db) + 1
-    new_listing = {"id": new_id, **listing_data}
-    listings_db.append(new_listing)
-    return new_listing
-
-def update_listing(listing_id: int, listing_data: dict):
-    listing = get_listing(listing_id)
-    if listing:
-        for key, value in listing_data.items():
-            if value is not None:
-                listing[key] = value
-        return listing
-    return None
-
-def delete_listing(listing_id: int):
-    global listings_db
-    listing = get_listing(listing_id)
-    if listing:
-        listings_db = [item for item in listings_db if item["id"] != listing_id]
-        return True
-    return False
-
-def search_listings(query: str):
-    query = query.lower()
-    return [
-        item for item in listings_db
-        if query in item["name"].lower() or query in item["location"].lower()
-    ]
+if __name__ == "__main__":
+    seed_db()
