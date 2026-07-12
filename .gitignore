@@ -17,3 +17,4 @@ __pycache__/
 *.pyd
 .Python
 backend/.env
+backend/generate_auth_collection.py
