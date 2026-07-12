@@ -5,6 +5,8 @@ from crud.listings import get_all_listings, get_listing, create_listing, update_
 from utils.responses import not_found_exception
 from sqlalchemy.orm import Session
 from database import get_db
+from utils.auth import get_current_user
+from models.database_models import User
 
 router = APIRouter(
     prefix="/api/listings",
@@ -27,18 +29,18 @@ def read_listing(listing_id: int, db: Session = Depends(get_db)):
     return listing
 
 @router.post("", response_model=Listing, status_code=status.HTTP_201_CREATED)
-def add_listing(listing: ListingCreate, db: Session = Depends(get_db)):
+def add_listing(listing: ListingCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return create_listing(db, listing.model_dump())
 
 @router.put("/{listing_id}", response_model=Listing, status_code=status.HTTP_200_OK)
-def modify_listing(listing_id: int, listing: ListingUpdate, db: Session = Depends(get_db)):
+def modify_listing(listing_id: int, listing: ListingUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     updated = update_listing(db, listing_id, listing.model_dump(exclude_unset=True))
     if not updated:
         raise not_found_exception("Listing")
     return updated
 
 @router.delete("/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_listing(listing_id: int, db: Session = Depends(get_db)):
+def remove_listing(listing_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     success = delete_listing(db, listing_id)
     if not success:
         raise not_found_exception("Listing")

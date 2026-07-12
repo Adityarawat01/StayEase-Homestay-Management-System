@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import toast from 'react-hot-toast'
 import './BookingForm.css'
 
 const initialState = {
@@ -14,6 +17,10 @@ function BookingForm({ propertyName = 'Selected Property' }) {
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { token } = useAuth()
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -197,11 +204,19 @@ function BookingForm({ propertyName = 'Selected Property' }) {
       </div>
 
       <button
-        type="submit"
+        type={token ? "submit" : "button"}
+        onClick={!token ? () => {
+          toast.error('Please login to book a homestay')
+          navigate('/login', { state: { from: location } })
+        } : undefined}
         className={`btn btn-primary booking-form__submit ${loading ? 'booking-form__submit--loading' : ''}`}
         disabled={loading}
       >
-        {loading ? (
+        {!token ? (
+          <>
+            <span>🔒</span> Login to Book
+          </>
+        ) : loading ? (
           <>
             <span className="booking-form__spinner" />
             Processing…

@@ -18,9 +18,31 @@ StayEase is a full-stack application built with a React (Vite) frontend and a Fa
 
 **Backend:**
 - FastAPI, Uvicorn, Pydantic, SQLAlchemy, psycopg2-binary, python-dotenv
+- JWT Authentication (python-jose, passlib), Rate Limiting (slowapi), Google OAuth
 
 **Database:**
 - PostgreSQL (Supabase)
+
+---
+
+## Authentication & Google OAuth Setup
+
+The application uses JWT (JSON Web Tokens) for authentication and protects certain routes. It also supports Google OAuth login.
+
+1. **Google OAuth Client ID**:
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Create a new project or select an existing one.
+   - Navigate to **APIs & Services > Credentials**.
+   - Click **Create Credentials > OAuth client ID**.
+   - Choose **Web application**. Add your frontend URL (e.g., `http://localhost:5173`) to **Authorized JavaScript origins**.
+   - Copy the generated Client ID.
+
+2. **Frontend Environment Variable**:
+   - Create a `.env` file in the root `StayEase-Homestay-Management-System` directory (or use Vite's `import.meta.env`).
+   - Add your Google Client ID:
+     ```env
+     VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+     ```
 
 ---
 
@@ -33,9 +55,13 @@ To connect the backend to your PostgreSQL database, you need to configure your e
    ```bash
    cp .env.example .env
    ```
-3. Open `.env` and configure your Supabase PostgreSQL connection string:
+3. Open `.env` and configure your settings:
    ```env
    DATABASE_URL=postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+   JWT_SECRET=super_secret_jwt_key_stayease_2026_change_in_production
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=10080
+   GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
    ```
 
 *(Note: If your Supabase URL starts with `postgres://`, the backend will automatically format it to `postgresql://` for SQLAlchemy compatibility).*
@@ -95,7 +121,13 @@ The backend provides the following 6 REST APIs that interact directly with the P
 
 - `GET /api/listings` - Return all homestays
 - `GET /api/listings/{id}` - Return a single homestay
-- `POST /api/listings` - Create a new homestay
-- `PUT /api/listings/{id}` - Update a homestay
-- `DELETE /api/listings/{id}` - Delete a homestay
+- `POST /api/listings` - Create a new homestay *(Protected)*
+- `PUT /api/listings/{id}` - Update a homestay *(Protected)*
+- `DELETE /api/listings/{id}` - Delete a homestay *(Protected)*
 - `GET /api/listings/search?q=` - Search homestays by location or name
+
+### Auth Endpoints (Rate Limited)
+
+- `POST /api/auth/login` - Authenticate with email/password
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/google-login` - Authenticate using a Google OAuth credential

@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import listings
+from routes import listings, auth
 from database import engine
 import models.database_models as database_models
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from utils.rate_limit import limiter
 
 # Create database tables automatically
 database_models.Base.metadata.create_all(bind=engine)
@@ -13,6 +16,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Enable CORS for the React frontend
 app.add_middleware(
     CORSMiddleware,
@@ -22,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(listings.router)
 
 @app.get("/")

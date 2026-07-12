@@ -1,14 +1,70 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { loginUser, registerUser, googleLogin } from '../services/api'
+import { useAuth } from '../context/AuthContext'
+import toast from 'react-hot-toast'
 import './Login.css'
 
-function Login() {
-  const [mode, setMode] = useState('login') // 'login' | 'register'
+function Login({ mode: initialMode = 'login' }) {
+  const [mode, setMode] = useState(initialMode) // 'login' | 'register'
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [showPass, setShowPass] = useState(false)
+  
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { login } = useAuth()
+  const from = location.state?.from?.pathname || '/'
+
+  useEffect(() => {
+    setMode(initialMode)
+  }, [initialMode])
+
+  useEffect(() => {
+    // Load Google Identity Services script
+    const loadGoogleScript = () => {
+      if (document.getElementById('google-gsi')) return;
+      const script = document.createElement('script');
+      script.id = 'google-gsi';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.onload = () => {
+        if (window.google) {
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy-client-id.apps.googleusercontent.com',
+            callback: handleGoogleResponse,
+          });
+        }
+      };
+      document.body.appendChild(script);
+    };
+    loadGoogleScript();
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    try {
+      setLoading(true);
+      const data = await googleLogin(response.credential);
+      login(data.access_token);
+      toast.success('Successfully logged in with Google!');
+      navigate(from, { replace: true });
+    } catch (err) {
+      toast.error('Google login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleClick = () => {
+    if (window.google) {
+      window.google.accounts.id.prompt(); // shows the One Tap prompt if possible
+      // or we can render the button properly if One Tap isn't working
+    } else {
+      toast.error('Google login is not loaded yet.');
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -25,15 +81,28 @@ function Login() {
     return e
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setSuccess(true)
-    }, 1600)
+    
+    try {
+      if (mode === 'login') {
+        const data = await loginUser({ email: form.email, password: form.password });
+        login(data.access_token);
+        toast.success('Welcome back!');
+        navigate(from, { replace: true });
+      } else {
+        const data = await registerUser({ username: form.name, email: form.email, password: form.password });
+        setSuccess(true);
+        toast.success('Account created successfully!');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const switchMode = (m) => {
@@ -146,11 +215,8 @@ function Login() {
               <form className="login__form" onSubmit={handleSubmit} noValidate>
                 {/* Social Login */}
                 <div className="login__social">
-                  <button type="button" className="login__social-btn" id="btn-google-auth">
+                  <button type="button" className="login__social-btn" id="btn-google-auth" onClick={handleGoogleClick}>
                     <span className="login__social-icon">🔵</span> Continue with Google
-                  </button>
-                  <button type="button" className="login__social-btn" id="btn-github-auth">
-                    <span className="login__social-icon">⚫</span> Continue with GitHub
                   </button>
                 </div>
 

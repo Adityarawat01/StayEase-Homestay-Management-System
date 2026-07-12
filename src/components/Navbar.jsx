@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 import './Navbar.css'
 
 function Navbar() {
   const { darkMode, toggleTheme } = useTheme()
+  const { token, logout } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -66,9 +69,15 @@ function Navbar() {
             <span className="theme-icon">{darkMode ? '☀️' : '🌙'}</span>
           </button>
 
-          <Link to="/login" className="btn btn-primary navbar__cta" onClick={() => setMenuOpen(false)}>
-            Login
-          </Link>
+          {token ? (
+            <button className="btn btn-primary navbar__cta" onClick={() => { setMenuOpen(false); logout(); }}>
+              Logout
+            </button>
+          ) : (
+            <Link to="/login" className="btn btn-primary navbar__cta" onClick={() => setMenuOpen(false)}>
+              Login
+            </Link>
+          )}
 
           {/* Hamburger */}
           <button
@@ -96,9 +105,15 @@ function Navbar() {
             {label}
           </NavLink>
         ))}
-        <Link to="/login" className="btn btn-primary navbar__mobile-cta" onClick={() => setMenuOpen(false)}>
-          Login / Register
-        </Link>
+        {token ? (
+          <button className="btn btn-primary navbar__mobile-cta" onClick={() => { setMenuOpen(false); logout(); }}>
+            Logout
+          </button>
+        ) : (
+          <Link to="/login" className="btn btn-primary navbar__mobile-cta" onClick={() => setMenuOpen(false)}>
+            Login / Register
+          </Link>
+        )}
       </div>
     </header>
   )
