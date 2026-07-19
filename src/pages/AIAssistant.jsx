@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Button } from '../components/ui'
-import { toast } from '../components/ui'
+import { Button, Loader, toast } from '../components/ui'
 import './AIAssistant.css'
 
 const AI_RESPONSES = [
@@ -58,7 +57,7 @@ function TypingIndicator() {
       <div className="ai-msg__bubble ai-msg__bubble--typing">
         <span className="ai-typing__name">StayEase AI</span>
         <div className="ai-typing">
-          <span /><span /><span />
+          <Loader size="sm" />
         </div>
       </div>
     </div>
@@ -88,7 +87,7 @@ function AIAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const msg = text.trim()
     if (!msg || isTyping) return
 
@@ -97,14 +96,28 @@ function AIAssistant() {
     setInputText('')
     setIsTyping(true)
 
-    // Simulate AI response delay (1–2.5s)
-    const delay = 1000 + Math.random() * 1500
-    setTimeout(() => {
-      const aiText = AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)]
-      const aiMsg = { id: ++msgIdCounter, role: 'assistant', text: aiText, time: getTime() }
-      setMessages((prev) => [...prev, aiMsg])
-      setIsTyping(false)
-    }, delay)
+    try {
+      const response = await fetch('http://localhost:5000/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: msg })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to communicate with AI service');
+      }
+
+      const data = await response.json();
+      const aiMsg = { id: ++msgIdCounter, role: 'assistant', text: data.response, time: getTime() };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch (error) {
+      console.error("AI Assistant Error:", error);
+      toast.error(error.message || "Something went wrong.");
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   const handleSubmit = (e) => {

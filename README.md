@@ -131,3 +131,22 @@ The backend provides the following 6 REST APIs that interact directly with the P
 - `POST /api/auth/login` - Authenticate with email/password
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/google-login` - Authenticate using a Google OAuth credential
+
+---
+
+## AI Assistant Integration (Gemini API)
+
+StayEase features an intelligent AI Assistant powered by Google's Gemini 1.5 Flash model. 
+The AI can help users find properties based on budget and location, answer FAQs, and provide travel tips.
+
+### 1. Gemini API Setup
+- Go to [Google AI Studio](https://aistudio.google.com/) and create a new API key.
+- In your `backend/.env` file, add the key as `GEMINI_API_KEY`:
+  ```env
+  GEMINI_API_KEY=your_gemini_api_key_here
+  ```
+
+### 2. AI Feature Overview
+- The AI endpoint is located at `POST /api/ai/chat` and is rate-limited to 10 requests per minute to prevent abuse.
+- The frontend `AIAssistant` component handles chat history, loading states, and error notifications.
+- API keys are securely stored on the backend and are never exposed to the client.
