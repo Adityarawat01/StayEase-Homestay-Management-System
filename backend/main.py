@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import listings, auth, ai
+from routes import listings, auth, ai, bookings
 from database import engine
 import models.database_models as database_models
 from slowapi import _rate_limit_exceeded_handler
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(listings.router)
 app.include_router(ai.router)
+app.include_router(bookings.router)
 
 @app.get("/")
 def root():

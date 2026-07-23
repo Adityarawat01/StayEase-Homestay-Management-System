@@ -14,11 +14,13 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     bookings = relationship("Booking", back_populates="user")
+    listings = relationship("Listing", back_populates="owner")
 
 class Listing(Base):
     __tablename__ = "listings"
 
     id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     name = Column(String, index=True, nullable=False)
     location = Column(String, nullable=False)
     price = Column(Integer, nullable=False)
@@ -32,6 +34,7 @@ class Listing(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     bookings = relationship("Booking", back_populates="listing")
+    owner = relationship("User", back_populates="listings")
 
 class Booking(Base):
     __tablename__ = "bookings"

@@ -21,6 +21,11 @@ def search_listings_route(q: Optional[str] = "", db: Session = Depends(get_db)):
 def read_listings(db: Session = Depends(get_db)):
     return get_all_listings(db)
 
+@router.get("/me", response_model=List[Listing], status_code=status.HTTP_200_OK)
+def read_user_listings(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    from models.database_models import Listing as DBListing
+    return db.query(DBListing).filter(DBListing.owner_id == current_user.id).all()
+
 @router.get("/{listing_id}", response_model=Listing, status_code=status.HTTP_200_OK)
 def read_listing(listing_id: int, db: Session = Depends(get_db)):
     listing = get_listing(db, listing_id)
@@ -30,7 +35,9 @@ def read_listing(listing_id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=Listing, status_code=status.HTTP_201_CREATED)
 def add_listing(listing: ListingCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return create_listing(db, listing.model_dump())
+    listing_data = listing.model_dump()
+    listing_data["owner_id"] = current_user.id
+    return create_listing(db, listing_data)
 
 @router.put("/{listing_id}", response_model=Listing, status_code=status.HTTP_200_OK)
 def modify_listing(listing_id: int, listing: ListingUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
