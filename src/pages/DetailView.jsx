@@ -5,12 +5,6 @@ import { Button, Modal, toast } from '../components/ui'
 import { getListingById, getListings } from '../services/api'
 import './DetailView.css'
 
-const REVIEWS = [
-  { name: 'Priya Sharma', avatar: 'PS', rating: 5, date: 'March 2026', text: 'An absolutely magical stay. The host was incredibly warm and the views were breathtaking!' },
-  { name: 'Rohan Mehta', avatar: 'RM', rating: 5, date: 'February 2026', text: 'Perfect eco-friendly getaway. Loved the farm-to-table meals and morning mist.' },
-  { name: 'Anjali Nair', avatar: 'AN', rating: 4, date: 'January 2026', text: 'Serene and beautiful. Would highly recommend to anyone looking for a nature retreat.' },
-]
-
 function StarRating({ rating, size = 'sm' }) {
   return (
     <span className={`detail-stars detail-stars--${size}`}>
@@ -277,19 +271,9 @@ function DetailView() {
               </div>
 
               <div className="detail__reviews-list">
-                {REVIEWS.map(({ name, avatar, rating, date, text }) => (
-                  <div key={name} className="detail__review-card">
-                    <div className="detail__review-header">
-                      <div className="detail__review-avatar">{avatar}</div>
-                      <div>
-                        <p className="detail__review-name">{name}</p>
-                        <p className="detail__review-date">{date}</p>
-                      </div>
-                      <StarRating rating={rating} size="sm" />
-                    </div>
-                    <p className="detail__review-text">"{text}"</p>
-                  </div>
-                ))}
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                  <p>No reviews yet. Be the first to review this property!</p>
+                </div>
               </div>
 
               <Button
@@ -333,7 +317,7 @@ function DetailView() {
             <div className="detail__booking-rating">
               ⭐ {property.rating} · <span>{property.reviews} reviews</span>
             </div>
-            <BookingForm propertyName={property.name} />
+            <BookingForm propertyName={property.name} propertyId={property.id} price={property.price} />
           </div>
         </aside>
       </div>

@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import Card from '../components/Card'
-import { locations } from '../data/properties'
 import { getListings, searchListings } from '../services/api'
 import './Listings.css'
 
@@ -18,6 +17,11 @@ function Listings() {
 
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
+
+  const locations = useMemo(() => {
+    const locs = properties.map(p => p.location)
+    return ['All Locations', ...new Set(locs)]
+  }, [properties])
 
   useEffect(() => {
     const fetchAll = async () => {

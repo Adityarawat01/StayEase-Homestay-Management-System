@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
+import { createBooking } from '../services/api'
 import './BookingForm.css'
 
 const initialState = {
@@ -12,7 +13,7 @@ const initialState = {
   guests: 1,
 }
 
-function BookingForm({ propertyName = 'Selected Property' }) {
+function BookingForm({ propertyName = 'Selected Property', propertyId = null, price = 5000 }) {
   const [form, setForm] = useState(initialState)
   const [errors, setErrors] = useState({})
   const [submitted, setSubmitted] = useState(false)
@@ -42,18 +43,34 @@ function BookingForm({ propertyName = 'Selected Property' }) {
     if (errors[name]) setErrors((er) => ({ ...er, [name]: '' }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!propertyId) {
+      toast.info('Please select a specific property to book.')
+      navigate('/listings')
+      return
+    }
+
     const errs = validate()
     if (Object.keys(errs).length) {
       setErrors(errs)
       return
     }
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      const days = Math.ceil((new Date(form.checkOut) - new Date(form.checkIn)) / (1000 * 60 * 60 * 24)) || 1
+      await createBooking({
+        listing_id: propertyId,
+        check_in: new Date(form.checkIn).toISOString(),
+        check_out: new Date(form.checkOut).toISOString(),
+        total_price: price * days
+      })
       setSubmitted(true)
-    }, 1800)
+    } catch (error) {
+      toast.error('Failed to submit booking. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleReset = () => {
