@@ -13,6 +13,7 @@ import AIAssistant from './pages/AIAssistant'
 import DetailView from './pages/DetailView'
 import ComponentsShowcase from './pages/ComponentsShowcase'
 import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/ErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import './styles/App.css'
 
@@ -44,18 +45,20 @@ function App() {
       <div className="app-wrapper">
         <Navbar />
         <main className="page-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/listings/:id" element={<DetailView />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/login" element={<Login mode="login" />} />
-            <Route path="/register" element={<Login mode="register" />} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/ai-assistant" element={<AIAssistant />} />
-            <Route path="/showcase" element={<ComponentsShowcase />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/listings" element={<Listings />} />
+              <Route path="/listings/:id" element={<DetailView />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/login" element={<Login mode="login" />} />
+              <Route path="/register" element={<Login mode="register" />} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/showcase" element={<ComponentsShowcase />} />
+            </Routes>
+          </ErrorBoundary>
         </main>
         <Footer />
       </div>

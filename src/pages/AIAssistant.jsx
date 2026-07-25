@@ -95,6 +95,11 @@ function AIAssistant() {
     setMessages((prev) => [...prev, userMsg])
     setInputText('')
     setIsTyping(true)
+    
+    // Reset textarea height
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+    }
 
     try {
       const response = await fetch('http://localhost:5000/api/ai/chat', {
@@ -140,7 +145,16 @@ function AIAssistant() {
       time: getTime(),
     }])
     toast.info('Chat history cleared')
-    inputRef.current?.focus()
+    if (inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.style.height = 'auto'
+    }
+  }
+
+  const handleInputChange = (e) => {
+    setInputText(e.target.value)
+    e.target.style.height = 'auto'
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`
   }
 
   return (
@@ -204,7 +218,7 @@ function AIAssistant() {
                 className="ai-chat__input"
                 placeholder="Ask about eco-stays, pricing, locations… (Enter to send)"
                 value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 rows={1}
                 disabled={isTyping}
