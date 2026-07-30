@@ -1,6 +1,9 @@
+import logging
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from models.database_models import Listing as DBListing
+
+logger = logging.getLogger("stayease.crud.listings")
 
 def get_all_listings(db: Session):
     return db.query(DBListing).all()
@@ -17,6 +20,7 @@ def create_listing(db: Session, listing_data: dict):
         return new_listing
     except SQLAlchemyError as e:
         db.rollback()
+        logger.error("Failed to create listing: %s", str(e))
         raise e
 
 def update_listing(db: Session, listing_id: int, listing_data: dict):
@@ -33,6 +37,7 @@ def update_listing(db: Session, listing_id: int, listing_data: dict):
         return db_listing
     except SQLAlchemyError as e:
         db.rollback()
+        logger.error("Failed to update listing %s: %s", listing_id, str(e))
         raise e
 
 def delete_listing(db: Session, listing_id: int):
@@ -46,6 +51,7 @@ def delete_listing(db: Session, listing_id: int):
         return True
     except SQLAlchemyError as e:
         db.rollback()
+        logger.error("Failed to delete listing %s: %s", listing_id, str(e))
         raise e
 
 def search_listings(db: Session, query: str):
@@ -53,3 +59,4 @@ def search_listings(db: Session, query: str):
     return db.query(DBListing).filter(
         DBListing.name.ilike(search) | DBListing.location.ilike(search)
     ).all()
+

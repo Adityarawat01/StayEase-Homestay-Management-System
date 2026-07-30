@@ -1,9 +1,12 @@
 import os
 import asyncio
+import logging
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 import google.generativeai as genai
 from utils.rate_limit import limiter
+
+logger = logging.getLogger("stayease.ai")
 
 router = APIRouter(prefix="/api/ai", tags=["AI Assistant"])
 
@@ -28,7 +31,8 @@ If a user asks about properties, recommend eco-friendly options."""
 async def chat_with_ai(request: Request, chat_request: ChatRequest):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API key is not configured.")
+        logger.error("GEMINI_API_KEY is not configured on the server.")
+        raise HTTPException(status_code=500, detail="AI service is not configured. Please contact the administrator.")
     
     genai.configure(api_key=api_key)
     
@@ -38,7 +42,7 @@ async def chat_with_ai(request: Request, chat_request: ChatRequest):
     
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-3.5-flash",
+            model_name="gemini-2.0-flash",
             system_instruction=SYSTEM_PROMPT
         )
         
@@ -58,7 +62,9 @@ async def chat_with_ai(request: Request, chat_request: ChatRequest):
         return ChatResponse(response=response.text)
 
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=504, detail="Request to AI service timed out.")
+        logger.warning("Gemini API request timed out for message: %.50s", user_message)
+        raise HTTPException(status_code=504, detail="The AI service took too long to respond. Please try again.")
     except Exception as e:
-        # In a real app, log the actual error e
-        raise HTTPException(status_code=502, detail=f"Failed to communicate with AI service: {str(e)}")
+        logger.error("Gemini API error: %s", str(e))
+        raise HTTPException(status_code=502, detail="Failed to get a response from the AI service. Please try again later.")
+

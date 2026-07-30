@@ -1,14 +1,24 @@
+# ── Build & Dependencies ──────────────────────────────────────
 node_modules
 dist
 dist-ssr
 *.local
+
+# ── Environment Variables (NEVER commit these) ────────────────
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# ── OS files ──────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Python
+# ── Python ────────────────────────────────────────────────────
 venv/
 env/
 __pycache__/
@@ -16,5 +26,6 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-backend/.env
+
+# ── Generated / Dev-only scripts ──────────────────────────────
 backend/generate_auth_collection.py

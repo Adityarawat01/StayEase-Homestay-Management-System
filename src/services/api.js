@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  console.error('[StayEase] VITE_API_URL is not defined. Please check your .env file.');
+}
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,6 +22,21 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('[StayEase] Request error:', error.message);
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid — clear stored token
+      localStorage.removeItem('token');
+    }
+    if (error.response?.status >= 500) {
+      console.error('[StayEase] Server error:', error.response?.status, error.response?.data?.detail);
+    }
     return Promise.reject(error);
   }
 );

@@ -1,14 +1,16 @@
-# StayEase - Eco-Friendly Homestay Management System
+# StayEase – Eco-Friendly Homestay Management System
 
-StayEase is a full-stack application built with a React (Vite) frontend and a FastAPI (Python) backend. It allows travelers to discover eco-friendly homestays and unique stays while supporting local communities. The backend uses PostgreSQL (via Supabase) for robust data persistence.
+StayEase is a full-stack application built with a React (Vite) frontend and a FastAPI (Python) backend. It allows travellers to discover eco-friendly homestays and unique stays while supporting local communities. The backend uses PostgreSQL (via Supabase) for robust data persistence.
 
 ## Features
 
 - Browse and filter a curated list of eco-friendly properties
 - View detailed property information
 - Interactive Host Dashboard for managing listings and booking requests
+- AI Assistant powered by Google Gemini
 - Mobile-responsive design
 - **REST APIs** for fetching, creating, updating, and deleting listings
+- **JWT Authentication** with Google OAuth support
 - **Persistent Data** using PostgreSQL via SQLAlchemy ORM
 
 ## Tech Stack
@@ -25,56 +27,45 @@ StayEase is a full-stack application built with a React (Vite) frontend and a Fa
 
 ---
 
-## Authentication & Google OAuth Setup
+## Environment Variables
 
-The application uses JWT (JSON Web Tokens) for authentication and protects certain routes. It also supports Google OAuth login.
+### Frontend (`/.env`)
 
-1. **Google OAuth Client ID**:
-   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
-   - Create a new project or select an existing one.
-   - Navigate to **APIs & Services > Credentials**.
-   - Click **Create Credentials > OAuth client ID**.
-   - Choose **Web application**. Add your frontend URL (e.g., `http://localhost:5173`) to **Authorized JavaScript origins**.
-   - Copy the generated Client ID.
+Copy `.env.example` to `.env` at the project root and fill in the values:
 
-2. **Frontend Environment Variable**:
-   - Create a `.env` file in the root `StayEase-Homestay-Management-System` directory (or use Vite's `import.meta.env`).
-   - Add your Google Client ID:
-     ```env
-     VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-     ```
+| Variable | Description | Example |
+|---|---|---|
+| `VITE_API_URL` | URL of the deployed FastAPI backend (no trailing slash) | `http://localhost:5000` |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID | `123.apps.googleusercontent.com` |
 
----
+### Backend (`/backend/.env`)
 
-## Environment Variables & Database Configuration
+Copy `backend/.env.example` to `backend/.env` and fill in the values:
 
-To connect the backend to your PostgreSQL database, you need to configure your environment variables.
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Supabase PostgreSQL connection string |
+| `SECRET_KEY` | General secret key (for future use) |
+| `JWT_SECRET` | Strong random string to sign JWTs — **required** |
+| `ALGORITHM` | JWT algorithm (default: `HS256`) |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime in minutes (default: `10080` = 7 days) |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID |
+| `GOOGLE_API_KEY` | Alias for Gemini API key (optional) |
+| `GEMINI_API_KEY` | Google Gemini API key for the AI assistant |
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins |
 
-1. Navigate to the `backend` directory.
-2. Copy the `.env.example` file to create a new `.env` file:
-   ```bash
-   cp .env.example .env
-   ```
-3. Open `.env` and configure your settings:
-   ```env
-   DATABASE_URL=postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
-   JWT_SECRET=super_secret_jwt_key_stayease_2026_change_in_production
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=10080
-   GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-   ```
-
-*(Note: If your Supabase URL starts with `postgres://`, the backend will automatically format it to `postgresql://` for SQLAlchemy compatibility).*
+**Generate a secure JWT secret:**
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
 
 ---
 
-## How to Run the Project
+## Local Development Setup
 
-You need to start both the backend server and the frontend development server concurrently.
+You need to start both the backend server and the frontend development server.
 
 ### 1. Backend Setup
-
-Navigate to the `backend` directory and set up the Python environment:
 
 ```bash
 cd backend
@@ -89,64 +80,155 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your actual values
+
 # Run the backend server
 uvicorn main:app --reload --port 5000
 ```
 
-> **Note on Database Seeding:** The backend is configured to automatically create tables on startup. If you'd like to seed the database with initial homestay listings, you can run the seed script:
+> **Database Seeding:** The backend auto-creates tables on startup. To seed with sample data:
 > ```bash
 > python seed_data.py
 > ```
 
-The backend API will run at `http://localhost:5000`. You can view the API documentation at `http://localhost:5000/docs`.
+The API runs at `http://localhost:5000`. Documentation: `http://localhost:5000/docs`
 
 ### 2. Frontend Setup
 
-Open a new terminal window/tab, ensuring you are in the root directory (`StayEase-Homestay-Management-System`), and install Node dependencies:
+Open a new terminal in the root directory:
 
 ```bash
-npm install
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env — set VITE_API_URL=http://localhost:5000
 
-# Start the React development server
+npm install
 npm run dev
 ```
 
-The frontend application will run at `http://localhost:5173`. It will automatically fetch data from the FastAPI backend.
+The frontend runs at `http://localhost:5173`.
+
+---
+
+## Deployment
+
+### Required Environment Variables Summary
+
+Before deploying, ensure every variable in `.env.example` (frontend) and `backend/.env.example` (backend) is set in your deployment platform.
+
+---
+
+### Frontend Deployment (Vercel)
+
+1. **Connect your repository** to [Vercel](https://vercel.com).
+2. Set the **Framework Preset** to `Vite`.
+3. Set the **Root Directory** to `/` (project root, where `vite.config.js` lives).
+4. Add these **Environment Variables** in the Vercel dashboard:
+   - `VITE_API_URL` → Your deployed backend URL (e.g. `https://stayease-api.onrender.com`)
+   - `VITE_GOOGLE_CLIENT_ID` → Your Google OAuth Client ID
+5. Click **Deploy**.
+
+> **Note:** After deploying, copy your Vercel frontend URL (e.g. `https://stayease.vercel.app`) and add it to the backend's `ALLOWED_ORIGINS`.
+
+---
+
+### Backend Deployment (Render)
+
+1. **Connect your repository** to [Render](https://render.com).
+2. Create a new **Web Service**.
+3. Set the **Root Directory** to `backend`.
+4. Set the **Build Command** to:
+   ```bash
+   pip install -r requirements.txt
+   ```
+5. Set the **Start Command** to:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 10000
+   ```
+6. Add all **Environment Variables** from `backend/.env.example` in the Render dashboard:
+   - `DATABASE_URL` → Your Supabase connection string
+   - `JWT_SECRET` → A strong random secret (see generation command above)
+   - `GOOGLE_CLIENT_ID` → Google OAuth Client ID
+   - `GEMINI_API_KEY` → Google Gemini API key
+   - `ALLOWED_ORIGINS` → Your Vercel frontend URL, e.g. `https://stayease.vercel.app`
+
+> **Tip:** You can deploy to any platform that supports Python (Railway, Fly.io, DigitalOcean App Platform, etc.). The setup is the same — just configure the environment variables and start command.
+
+---
+
+### Supabase Configuration
+
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard).
+2. Navigate to **Settings → Database**.
+3. Copy the **Connection String** (Transaction Pooler recommended for serverless environments) — use **port 5432** for session mode.
+4. Set this as `DATABASE_URL` in your backend environment.
+
+**Important Notes:**
+- If your Supabase URL starts with `postgres://`, the backend automatically rewrites it to `postgresql://` for SQLAlchemy compatibility.
+- Enable **Row Level Security (RLS)** on your tables in Supabase for production.
+- Add your **backend server's IP** to Supabase's allowed connections if you use IP restrictions.
+
+---
+
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/).
+2. Navigate to **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
+3. Choose **Web application**.
+4. Add **Authorized JavaScript origins**:
+   - `http://localhost:5173` (development)
+   - `https://your-app.vercel.app` (production)
+5. Copy the **Client ID** and set it as:
+   - `VITE_GOOGLE_CLIENT_ID` in the frontend `.env`
+   - `GOOGLE_CLIENT_ID` in the backend `.env`
+
+---
+
+### Gemini AI Setup
+
+1. Go to [Google AI Studio](https://aistudio.google.com/) and create an API key.
+2. Set it as `GEMINI_API_KEY` in your backend `.env` / deployment environment.
+3. The AI endpoint at `POST /api/ai/chat` is rate-limited to 10 requests/minute.
 
 ---
 
 ## API Endpoints
 
-The backend provides the following 6 REST APIs that interact directly with the PostgreSQL database:
+### Listings
 
-- `GET /api/listings` - Return all homestays
-- `GET /api/listings/{id}` - Return a single homestay
-- `POST /api/listings` - Create a new homestay *(Protected)*
-- `PUT /api/listings/{id}` - Update a homestay *(Protected)*
-- `DELETE /api/listings/{id}` - Delete a homestay *(Protected)*
-- `GET /api/listings/search?q=` - Search homestays by location or name
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/listings` | No | Return all homestays |
+| `GET` | `/api/listings/{id}` | No | Return a single homestay |
+| `GET` | `/api/listings/search?q=` | No | Search by name/location |
+| `GET` | `/api/listings/me` | ✅ | Get current user's listings |
+| `POST` | `/api/listings` | ✅ | Create a new homestay |
+| `PUT` | `/api/listings/{id}` | ✅ | Update a homestay |
+| `DELETE` | `/api/listings/{id}` | ✅ | Delete a homestay |
 
-### Auth Endpoints (Rate Limited)
+### Auth (Rate Limited)
 
-- `POST /api/auth/login` - Authenticate with email/password
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/google-login` - Authenticate using a Google OAuth credential
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register a new user (5/min) |
+| `POST` | `/api/auth/login` | Login with email/password (10/min) |
+| `POST` | `/api/auth/logout` | Logout (client-side token clear) |
+| `POST` | `/api/auth/google-login` | Login with Google OAuth (10/min) |
 
----
+### Bookings
 
-## AI Assistant Integration (Gemini API)
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/bookings` | ✅ | Get current user's bookings |
+| `POST` | `/api/bookings` | ✅ | Create a new booking |
+| `DELETE` | `/api/bookings/{id}` | ✅ | Cancel a booking |
 
-StayEase features an intelligent AI Assistant powered by Google's Gemini 1.5 Flash model. 
-The AI can help users find properties based on budget and location, answer FAQs, and provide travel tips.
+### AI
 
-### 1. Gemini API Setup
-- Go to [Google AI Studio](https://aistudio.google.com/) and create a new API key.
-- In your `backend/.env` file, add the key as `GEMINI_API_KEY`:
-  ```env
-  GEMINI_API_KEY=your_gemini_api_key_here
-  ```
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/ai/chat` | Chat with StayEase AI (10/min) |
 
-### 2. AI Feature Overview
-- The AI endpoint is located at `POST /api/ai/chat` and is rate-limited to 10 requests per minute to prevent abuse.
-- The frontend `AIAssistant` component handles chat history, loading states, and error notifications.
-- API keys are securely stored on the backend and are never exposed to the client.
+View live API documentation at `http://localhost:5000/docs` (Swagger UI).

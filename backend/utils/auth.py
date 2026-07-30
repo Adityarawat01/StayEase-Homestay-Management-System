@@ -13,7 +13,13 @@ from models.user import TokenData
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("JWT_SECRET", "super_secret_jwt_key_stayease_2026_change_in_production")
+SECRET_KEY = os.getenv("JWT_SECRET")
+if not SECRET_KEY:
+    raise ValueError(
+        "JWT_SECRET environment variable is not set. "
+        "Please add it to your .env file. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080")) # 7 days
 
