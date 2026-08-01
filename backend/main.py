@@ -1,7 +1,8 @@
 import os
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from routes import listings, auth, ai, bookings
 from database import engine
 import models.database_models as database_models
@@ -28,24 +29,38 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
 # ── CORS Configuration ────────────────────────────────────────────────────────
-# ALLOWED_ORIGINS env var: comma-separated list of allowed origins.
-# Example: http://localhost:5173,https://stayease.vercel.app
-_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5000")
+# ALLOWED_ORIGINS env var: comma-separated list of allowed origins (no trailing slash).
+# Set this in your deployment environment (Render, Railway, etc.).
+#
+# Example value:
+#   https://stay-ease-homestay-management-system.vercel.app,http://localhost:5173,http://localhost:3000
+#
+# IMPORTANT: The CORS middleware MUST be registered before any other middleware
+# so that preflight OPTIONS requests receive the correct headers even when
+# other middleware (e.g. rate limiting) would otherwise intercept them.
+
+_raw_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:3000"
+)
 ALLOWED_ORIGINS = [origin.strip() for origin in _raw_origins.split(",") if origin.strip()]
 
-logger.info(f"CORS allowed origins: {ALLOWED_ORIGINS}")
+logger.info("CORS allowed origins: %s", ALLOWED_ORIGINS)
 
+# Register CORS middleware FIRST — before rate limiting and routers.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(auth.router)
 app.include_router(listings.router)
