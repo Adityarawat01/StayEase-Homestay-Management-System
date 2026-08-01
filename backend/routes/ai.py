@@ -42,9 +42,9 @@ async def chat_with_ai(request: Request, chat_request: ChatRequest):
     
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
-            system_instruction=SYSTEM_PROMPT
-        )
+    model_name="gemini-1.5-flash",
+    system_instruction=SYSTEM_PROMPT
+)
         
         # Use asyncio.to_thread for synchronous SDK call to avoid blocking the event loop
         # We also implement a timeout of 10 seconds.
