@@ -94,7 +94,7 @@ function Login({ mode: initialMode = 'login' }) {
         toast.success('Welcome back!');
         navigate(from, { replace: true });
       } else {
-        const data = await registerUser({ full_name: form.name, email: form.email, password: form.password });
+        const data = await registerUser({ username: form.name, email: form.email, password: form.password });
         setSuccess(true);
         toast.success('Account created successfully!');
       }

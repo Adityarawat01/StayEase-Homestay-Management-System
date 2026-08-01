@@ -31,7 +31,7 @@ def register(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     
     hashed_password = get_password_hash(user.password)
     new_user = User(
-        username=user.full_name,   # full_name from the request body maps to the username DB column
+        username=user.username,
         email=user.email,
         hashed_password=hashed_password
     )

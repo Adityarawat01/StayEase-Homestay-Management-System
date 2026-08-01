@@ -6,16 +6,12 @@ from datetime import datetime
 class UserCreate(BaseModel):
     """
     Schema for user registration.
-
-    The frontend sends `full_name` (the user's display name).
-    The route handler maps `full_name` → the `username` column in the database.
-    No alias is needed because the JSON key and the Python field name are both `full_name`.
+    Accepts: { "username": "...", "email": "...", "password": "..." }
+    The `username` value is stored directly in the `username` column of the users table.
     """
-    full_name: str = Field(..., min_length=1, description="User's display name")
+    username: str = Field(..., min_length=1, description="User's display name")
     email: EmailStr
     password: str = Field(..., min_length=6, description="Password (minimum 6 characters)")
-
-    model_config = ConfigDict(populate_by_name=True)
 
 
 class UserLogin(BaseModel):
