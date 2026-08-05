@@ -44,7 +44,7 @@ function Message({ msg }) {
         <span className="ai-msg__time">{msg.time}</span>
       </div>
       {msg.role === 'user' && (
-        <div className="ai-msg__avatar ai-msg__avatar--user">AR</div>
+        <div className="ai-msg__avatar ai-msg__avatar--user">👤</div>
       )}
     </div>
   )

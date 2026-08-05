@@ -82,7 +82,7 @@ function Footer() {
       <div className="footer__bottom">
         <div className="container footer__bottom-inner">
           <p className="footer__copy">
-            © 2026 <strong>StayEase</strong>. All Rights Reserved. Made with 💚 for sustainable travel.
+            © 2025 <strong>StayEase</strong>. All Rights Reserved. Made with 💚 for sustainable travel.
           </p>
 
           <div className="footer__socials">

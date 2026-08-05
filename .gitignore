@@ -29,3 +29,11 @@ __pycache__/
 
 # ── Generated / Dev-only scripts ──────────────────────────────
 backend/generate_auth_collection.py
+backend/generate_collection.py
+
+# ── Dev / Internship week-specific files ──────────────────────
+PROMPTS.md
+W6_AuthAPICollection_12345.json
+test_gemini.py
+test_models.py
+database_schema.md

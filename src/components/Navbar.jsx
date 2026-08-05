@@ -29,7 +29,6 @@ function Navbar() {
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/ai-assistant', label: '🤖 AI' },
     { to: '/settings', label: '⚙️ Settings' },
-    { to: '/showcase', label: '🎨 UI' },
   ]
 
   return (

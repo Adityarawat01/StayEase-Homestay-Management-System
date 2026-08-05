@@ -29,39 +29,39 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ScrollToTop />
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3500,
-          style: {
-            borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '0.9rem',
-            fontWeight: 500,
-          },
-        }}
-      />
-      <div className="app-wrapper">
-        <Navbar />
-        <main className="page-content">
-          <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/listings" element={<Listings />} />
-              <Route path="/listings/:id" element={<DetailView />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/login" element={<Login mode="login" />} />
-              <Route path="/register" element={<Login mode="register" />} />
-              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="/ai-assistant" element={<AIAssistant />} />
-              <Route path="/showcase" element={<ComponentsShowcase />} />
-            </Routes>
-          </ErrorBoundary>
-        </main>
-        <Footer />
-      </div>
+        <div className="app-wrapper">
+          <ScrollToTop />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3500,
+              style: {
+                borderRadius: '12px',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '0.9rem',
+                fontWeight: 500,
+              },
+            }}
+          />
+          <Navbar />
+          <main className="page-content">
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/listings" element={<Listings />} />
+                <Route path="/listings/:id" element={<DetailView />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/login" element={<Login mode="login" />} />
+                <Route path="/register" element={<Login mode="register" />} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="/ai-assistant" element={<AIAssistant />} />
+                <Route path="/showcase" element={<ComponentsShowcase />} />
+              </Routes>
+            </ErrorBoundary>
+          </main>
+          <Footer />
+        </div>
       </AuthProvider>
     </Router>
   )

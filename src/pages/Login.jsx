@@ -313,7 +313,13 @@ function Login({ mode: initialMode = 'login' }) {
                 {/* Forgot Password (login only) */}
                 {mode === 'login' && (
                   <div className="login__forgot">
-                    <a href="#" className="login__forgot-link">Forgot your password?</a>
+                    <button
+                      type="button"
+                      className="login__forgot-link"
+                      onClick={() => toast('Password reset is not yet available.', { icon: 'ℹ️' })}
+                    >
+                      Forgot your password?
+                    </button>
                   </div>
                 )}
 
@@ -321,8 +327,8 @@ function Login({ mode: initialMode = 'login' }) {
                 {mode === 'register' && (
                   <p className="login__terms">
                     By registering you agree to our{' '}
-                    <a href="#" className="login__terms-link">Terms of Service</a> and{' '}
-                    <a href="#" className="login__terms-link">Privacy Policy</a>.
+                    <span className="login__terms-link">Terms of Service</span> and{' '}
+                    <span className="login__terms-link">Privacy Policy</span>.
                   </p>
                 )}
 

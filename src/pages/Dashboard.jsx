@@ -187,7 +187,7 @@ function Dashboard() {
             <span className="section-label" style={{ color: '#fff', background: 'rgba(255,255,255,0.18)' }}>
               🏠 Host Dashboard
             </span>
-            <h1 className="dashboard__title">Welcome back, Aditya 👋</h1>
+            <h1 className="dashboard__title">Welcome back 👋</h1>
             <p className="dashboard__subtitle">Here's what's happening with your properties today.</p>
           </div>
           <button className="btn dashboard__add-btn" onClick={() => setIsAddModalOpen(true)}>
